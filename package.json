@@ -1,7 +1,7 @@
 {
   "name": "datapusher",
   "version": "1.0.0",
-  "description": "Listens to MQTT sensor values and pushes to mySQL database",
+  "description": "Push MQTT sensor values to mySQL database",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
