@@ -8,19 +8,27 @@ var connection = connections.mysqlConnection;
 connection.connect();
 
 client.on("connect", function() {
-  client.subscribe("home/+/minuteData", function(err) {
+  client.subscribe("home/+/minutedata", function(err) {
     if (!err) {
       client.publish("home/server/dataPusher", "ON");
     }
   });
 });
 
-client.on("message", function(topic, message) {
-  let query = `INSERT INTO \`${
-    topic.split("/")[1]
-  }_data\` (\`id\`, \`minute_value\`, \`timestamp\`) VALUES (NULL, \'${message.toString()}\', NOW())`;
+client.on("message", function(topic, m) {
+  //console.log(m.toString());
+  var message = JSON.parse(m.toString());
+
+  if (message.type == "minuteData") {
+    var query = "";
+    message.sensors.forEach(sensor => {
+      query += `INSERT INTO \`${sensor.sensorName}_minute_data\`(\`id\`, \`data\`, \`timestamp\`) VALUES (NULL, \'${sensor.minuteData}\', FROM_UNIXTIME(${message.time}));`;
+    });
+  }
+
+  //console.log(query);
+
   connection.query(query, function(error) {
     if (error) throw error;
-    console.log(topic.split("/")[1] + ": " + message.toString());
   });
 });
